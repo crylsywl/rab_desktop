@@ -4,20 +4,129 @@
  * and open the template in the editor.
  */
 package com.view.admin;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import koneksi.koneksi;
 
 /**
  *
  * @author Asus
  */
 public class admin_popup_material extends javax.swing.JFrame {
+        private Connection conn = new koneksi().getConnection(); 
+    private DefaultTableModel tbl;
+    private MaterialSelectionListener selectionListener;
+    
+    public interface MaterialSelectionListener {
+        void onMaterialSelected(String idMaterial, String namaMaterial, String satuan, double price);
+    }
 
     /**
      * Creates new form admin_popup_material
+     * @param listener
      */
-    public admin_popup_material() {
+    public admin_popup_material(MaterialSelectionListener listener) {
+        this.selectionListener = listener;
         initComponents();
+        datatable();
+        setLocationRelativeTo(null); // Center the window
     }
+    protected void datatable(){
+        tbl = new DefaultTableModel();
+        tbl.addColumn("ID Material");
+        tbl.addColumn("Nama Supplier");
+        tbl.addColumn("Nama Material");
+        tbl.addColumn("Spesifikasi");
+        tbl.addColumn("Satuan");
+        tbl.addColumn("Stok");
+        tbl.addColumn("Harga");
+        
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM material");
+            
+            while (rs.next()){
+                tbl.addRow(new Object[]{
+                    rs.getString("id_material"),
+                    rs.getString("nama_supplier"),
+                    rs.getString("nama_material"),
+                    rs.getString("spesifikasi"),
+                    rs.getString("satuan"),
+                    rs.getInt("stok"),
+                    rs.getDouble("price")
+                });
+            }
+            displayArea.setModel(tbl);
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Koneksi Database Gagal: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Method untuk pencarian data
+     */
+    private void searchData() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID Material");
+        model.addColumn("Nama Supplier");
+        model.addColumn("Nama Material");
+        model.addColumn("Spesifikasi");
+        model.addColumn("Satuan");
+        model.addColumn("Stok");
+        model.addColumn("Harga");
 
+        try {
+            Statement st = conn.createStatement();
+            String searchText = SearchField.getText();
+
+            String query = "SELECT * FROM material WHERE "
+                    + "id_material LIKE '%" + searchText + "%' OR "
+                    + "nama_supplier LIKE '%" + searchText + "%' OR "
+                    + "nama_material LIKE '%" + searchText + "%' OR "
+                    + "spesifikasi LIKE '%" + searchText + "%' OR "
+                    + "satuan LIKE '%" + searchText + "%'";
+            
+            ResultSet rs = st.executeQuery(query);
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("id_material"),
+                    rs.getString("nama_supplier"),
+                    rs.getString("nama_material"),
+                    rs.getString("spesifikasi"),
+                    rs.getString("satuan"),
+                    rs.getInt("stok"),
+                    rs.getDouble("price")
+                });
+            }
+            displayArea.setModel(model);
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Pencarian Gagal: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Method ketika table di-click
+     */
+    private void displayAreaMouseClicked(java.awt.event.MouseEvent evt) {
+        int row = displayArea.getSelectedRow();
+        if (row >= 0) {
+            String idMaterial = displayArea.getValueAt(row, 0).toString();
+            String namaMaterial = displayArea.getValueAt(row, 2).toString();
+            String satuan = displayArea.getValueAt(row, 4).toString();
+            double price = Double.parseDouble(displayArea.getValueAt(row, 6).toString());
+            
+            if (selectionListener != null) {
+                selectionListener.onMaterialSelected(idMaterial, namaMaterial, satuan, price);
+            }
+            this.dispose();
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,21 +136,55 @@ public class admin_popup_material extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        SearchField = new javax.swing.JTextField();
+        btnSearch = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        displayArea = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        SearchField.setBorder(null);
+        getContentPane().add(SearchField, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 110, 230, 40));
+
+        btnSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnSearch.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnSearchMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, 40, 40));
+
+        displayArea.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(displayArea);
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, 650, 210));
+
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/Popup_Material.png"))); // NOI18N
-        jLabel1.setPreferredSize(new java.awt.Dimension(800, 500));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnSearchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSearchMouseClicked
+        searchData();
+    }//GEN-LAST:event_btnSearchMouseClicked
+
     /**
      * @param args the command line arguments
      */
+                    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -60,7 +203,7 @@ public class admin_popup_material extends javax.swing.JFrame {
         } catch (InstantiationException ex) {
             java.util.logging.Logger.getLogger(admin_popup_material.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(admin_popup_material.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+           java.util.logging.Logger.getLogger(admin_popup_material.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(admin_popup_material.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
@@ -69,12 +212,21 @@ public class admin_popup_material extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new admin_popup_material().setVisible(true);
+                new admin_popup_material(new admin_popup_material.MaterialSelectionListener() {
+                    @Override
+                    public void onMaterialSelected(String idMaterial, String namaMaterial, String satuan, double price) {
+                        System.out.println("Material terpilih: " + namaMaterial + " - Harga: " + price);
+                    }
+                }).setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField SearchField;
+    private javax.swing.JLabel btnSearch;
+    private javax.swing.JTable displayArea;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

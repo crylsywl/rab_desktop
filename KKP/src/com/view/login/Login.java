@@ -5,6 +5,16 @@
  */
 package com.view.login;
 
+import com.view.admin.admin_user;
+import java.security.MessageDigest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import koneksi.koneksi;
+
+
 /**
  *
  * @author Asus
@@ -18,7 +28,91 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
     }
+    
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes("UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            // Sebaiknya tangani exception dengan lebih spesifik
+            // atau log errornya, melempar RuntimeException bisa menghentikan aplikasi
+            System.err.println("Error hashing password: " + e.getMessage());
+            // throw new RuntimeException("Error hashing password", e);
+            return null; // Atau kembalikan null jika hashing gagal agar bisa ditangani
+        }
+    }
+     
+     private void attemptLogin() {
+        String username = usernameField.getText().trim();
+        // Cara yang benar dan lebih aman untuk mendapatkan password dari JPasswordField
+        String password = new String(passwordField.getPassword());
 
+        if (username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username tidak boleh kosong!", "Login Error", JOptionPane.ERROR_MESSAGE);
+            usernameField.requestFocus();
+            return;
+        }
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", "Login Error", JOptionPane.ERROR_MESSAGE);
+            passwordField.requestFocus();
+            return;
+        }
+
+        String hashedPassword = hashPassword(password);
+        if (hashedPassword == null) {
+            // Hashing gagal, tampilkan error (hashPassword sudah print error)
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan internal saat memproses password.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = koneksi.getConnection();
+            String sql = "SELECT * FROM user WHERE (`username`) = ? AND password = ?";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword); 
+
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                
+                userSession.setUserLogin(rs.getString("id_user"));
+                JOptionPane.showMessageDialog(this, "Berhasil Login!"); // Pesan sukses
+
+                admin_user ADMIN = new admin_user(); // Atau halaman yang sesuai
+                ADMIN.setVisible(true);
+                this.dispose(); // Tutup jendela login
+            } else {
+                // Login gagal
+                JOptionPane.showMessageDialog(this, "Username atau Kata Sandi Salah", "Login Gagal", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal Login! Terjadi kesalahan database: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) { // Menangkap error jika koneksi.getConnection() gagal atau masalah lain
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan umum: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -57,6 +151,11 @@ public class Login extends javax.swing.JFrame {
         passwordField.setBackground(new java.awt.Color(234, 234, 234));
         passwordField.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         passwordField.setBorder(null);
+        passwordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passwordFieldActionPerformed(evt);
+            }
+        });
         getContentPane().add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(129, 501, 382, 24));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/login/Login.png"))); // NOI18N
@@ -71,7 +170,13 @@ public class Login extends javax.swing.JFrame {
 
     private void btnLoginMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLoginMouseClicked
         // TODO add your handling code here:
+        attemptLogin();
     }//GEN-LAST:event_btnLoginMouseClicked
+
+    private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
+        // TODO add your handling code here:
+        attemptLogin();
+    }//GEN-LAST:event_passwordFieldActionPerformed
 
     /**
      * @param args the command line arguments
