@@ -186,6 +186,7 @@ private void cariData(String key) {
         displayarea = new javax.swing.JScrollPane();
         Displayarea = new javax.swing.JTable();
         btnSearch = new javax.swing.JLabel();
+        btnRefresh = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -361,6 +362,13 @@ private void cariData(String key) {
         });
         getContentPane().add(btnSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 150, 40, 40));
 
+        btnRefresh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnRefreshMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 150, 30, 40));
+
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/admin_Supplier.png"))); // NOI18N
         jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -529,6 +537,13 @@ private void cariData(String key) {
         this.dispose();
     }//GEN-LAST:event_btnMaterialMouseClicked
 
+    private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
+        // TODO add your handling code here:
+        kosong();
+        autonumber();
+        loadTable();
+    }//GEN-LAST:event_btnRefreshMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -573,6 +588,7 @@ private void cariData(String key) {
     private javax.swing.JLabel btnMaterial;
     private javax.swing.JLabel btnProject;
     private javax.swing.JLabel btnRAB;
+    private javax.swing.JLabel btnRefresh;
     private javax.swing.JLabel btnReport;
     private javax.swing.JLabel btnSearch;
     private javax.swing.JLabel btnSimpan;

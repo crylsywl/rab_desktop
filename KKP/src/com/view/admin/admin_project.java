@@ -86,6 +86,51 @@ public class admin_project extends javax.swing.JFrame {
         return nextId;
     }
     
+    private String generateRabId() {
+        String nextId = "RAB0001"; // Default ID jika tabel masih kosong
+
+        try {
+            String sql = "SELECT id_rab FROM rab ORDER BY id_rab DESC LIMIT 1";
+            Statement st = koneksi.getConnection().createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            if (rs.next()) {
+                String lastId = rs.getString("id_rab");
+
+                if (lastId != null && lastId.startsWith("RAB")) {
+                    String numberPart = lastId.substring(3); // ambil angka setelah "RAB"
+
+                    if (!numberPart.isEmpty()) {
+                        try {
+                            int num = Integer.parseInt(numberPart) + 1;
+
+                            // Tentukan jumlah nol-nya
+                            String zeros = "";
+                            if (num < 10) {
+                                zeros = "000";
+                            } else if (num < 100) {
+                                zeros = "00";
+                            } else if (num < 1000) {
+                                zeros = "0";
+                            }
+
+                            nextId = "RAB" + zeros + num;
+
+                        } catch (NumberFormatException e) {
+                            // Jika format angka rusak → gunakan default RAB0001
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Auto Number RAB Gagal: " + e.getMessage());
+        }
+
+        return nextId;
+    }
+
+    
     public void tabel(){
         tbl = new DefaultTableModel();
         tbl.addColumn("ID Project");
@@ -114,9 +159,11 @@ public class admin_project extends javax.swing.JFrame {
         }
     }
     
-    private void simpanData() {                                    
-        // Generate ID Project langsung ke variabel
-        String id = generateProjectId();
+    private void simpanData() {                                     
+        // Generate ID Project dan ID RAB
+        String idProject = generateProjectId();
+        String idRab = generateRabId();
+
         String namaProject = ProjectNameField.getText().trim();
         String jumlahRumah = NumberOfUnitField.getText().trim();
         String type = TypeField.getText().trim();
@@ -144,25 +191,72 @@ public class admin_project extends javax.swing.JFrame {
             return;
         }
 
-        String query = "INSERT INTO project (id_project, nama_project, jumlah_rumah, type, location) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = koneksi.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            
-            preparedStatement.setString(1, id);
-            preparedStatement.setString(2, namaProject);
-            preparedStatement.setString(3, jumlahRumah);
-            preparedStatement.setString(4, type);
-            preparedStatement.setString(5, location);
-            
-            preparedStatement.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Data project berhasil disimpan dengan ID: " + id);
-            tabel(); // Muat ulang data tabel
-            clearFields(); // Bersihkan field input
+        Connection connection = null;
+        PreparedStatement pstProject = null;
+        PreparedStatement pstRab = null;
+
+        try {
+            connection = koneksi.getConnection();
+            connection.setAutoCommit(false); // ❗ Mulai transaksi
+
+            // ===========================
+            // 1) INSERT ke tabel project
+            // ===========================
+            String sqlProject = 
+                "INSERT INTO project (id_project, nama_project, jumlah_rumah, type, location) " +
+                "VALUES (?, ?, ?, ?, ?)";
+
+            pstProject = connection.prepareStatement(sqlProject);
+            pstProject.setString(1, idProject);
+            pstProject.setString(2, namaProject);
+            pstProject.setString(3, jumlahRumah);
+            pstProject.setString(4, type);
+            pstProject.setString(5, location);
+            pstProject.executeUpdate();
+
+            // =======================
+            // 2) INSERT ke tabel RAB
+            // =======================
+            String sqlRab = 
+                "INSERT INTO rab (id_rab, id_project) VALUES (?, ?)";
+
+            pstRab = connection.prepareStatement(sqlRab);
+            pstRab.setString(1, idRab);
+            pstRab.setString(2, idProject);
+            pstRab.executeUpdate();
+
+            // Commit transaksi
+            connection.commit();
+
+            JOptionPane.showMessageDialog(this, 
+                "Project & RAB berhasil disimpan!\nID Project: " + idProject + "\nID RAB: " + idRab,
+                "Sukses",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+
+            tabel();       // reload table project
+            clearFields(); // bersihkan input
+
         } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Gagal menyimpan data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            try {
+                if (connection != null) connection.rollback(); // ❗ batalkan transaksi jika gagal
+            } catch (SQLException ex) {}
+
+            JOptionPane.showMessageDialog(this, 
+                "Gagal menyimpan data: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+
+        } finally {
+            try {
+                if (pstProject != null) pstProject.close();
+                if (pstRab != null) pstRab.close();
+                if (connection != null) connection.setAutoCommit(true);
+            } catch (SQLException ex) {}
         }
     }
+
     
     private void ubahData() {                                  
         int selectedRow = displayArea.getSelectedRow();
@@ -351,6 +445,7 @@ public class admin_project extends javax.swing.JFrame {
         username = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         displayArea = new javax.swing.JTable();
+        btnRefresh = new javax.swing.JLabel();
         Baground = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -482,6 +577,13 @@ public class admin_project extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 200, 570, 540));
 
+        btnRefresh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnRefreshMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 150, 30, 40));
+
         Baground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/admin_Project.png"))); // NOI18N
         Baground.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -560,6 +662,12 @@ logout.logout(this, LOGIN);
         displayAreaMouseClicked();
     }//GEN-LAST:event_displayAreaMouseClicked
 
+    private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
+        // TODO add your handling code here:
+        clearFields();
+        tabel();
+    }//GEN-LAST:event_btnRefreshMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -607,6 +715,7 @@ logout.logout(this, LOGIN);
     private javax.swing.JLabel btnLogout;
     private javax.swing.JLabel btnMaterial;
     private javax.swing.JLabel btnRab;
+    private javax.swing.JLabel btnRefresh;
     private javax.swing.JLabel btnReport;
     private javax.swing.JLabel btnSearch;
     private javax.swing.JLabel btnSimpan;

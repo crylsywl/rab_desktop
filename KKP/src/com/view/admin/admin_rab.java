@@ -18,6 +18,7 @@ import java.util.Vector;
 import javax.swing.ButtonModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import koneksi.koneksi;
 import koneksi.pageUtil;
@@ -29,6 +30,7 @@ import koneksi.pageUtil;
 public class admin_rab extends javax.swing.JFrame {
     private Connection conn;
     private DefaultTableModel tbl;
+    public String idMaterial, namaMaterial, satuan, price;
     /**
      * Creates new form admin_project
      */
@@ -41,6 +43,16 @@ public class admin_rab extends javax.swing.JFrame {
         
         loadTipeComboBox();
         tabel();
+      
+    }
+    
+    public void itemTerpilihMaterial(){ 
+        admin_popup_material mtr = new admin_popup_material(); 
+        mtr.mtr= this;
+        String id_Material= idMaterial;
+        namaMaterialField.setText(namaMaterial);
+        unitField.setText(satuan);
+        unitPriceField.setText(price);
     }
     
     public class ProjectModel {
@@ -77,6 +89,25 @@ public class admin_rab extends javax.swing.JFrame {
             e.printStackTrace();
         }
         return null; // jika tidak ada RAB
+    }
+    
+    private void clearForm() {
+        categoryField.setText("");
+        namaMaterialField.setText("");
+        unitField.setText("");
+        quantityField.setText("");
+        unitPriceField.setText("");
+        totalCostField.setText("");
+        buttonGroup1.clearSelection(); // clear radio button Budget / Additional
+        displayAreaMaterial.clearSelection();
+    }
+    
+    private void clearFormAdd() {
+        namaMaterialField.setText("");
+        unitField.setText("");
+        quantityField.setText("");
+        unitPriceField.setText("");
+        totalCostField.setText("");
     }
 
 
@@ -287,24 +318,76 @@ public class admin_rab extends javax.swing.JFrame {
         }
     }
         
-        public void hitungPermter() {
-            double jumlahTotal = Double.parseDouble(this.jumlahTotal.getText());
+    public void hitungPermter() {
+        try {
+            // Cek apakah kolom jumlahTotal kosong
+            if (this.jumlahTotal.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Total kategori belum dihitung.", 
+                    "Input Error", 
+                    JOptionPane.WARNING_MESSAGE);
+                perMeter.setText("0");
+                return;
+            }
+
+            // Parse jumlahTotal
+            double jumlahTotal = Double.parseDouble(this.jumlahTotal.getText().trim());
+
+            // Cek apakah project sudah dipilih
             String namaDipilih = comboBoxProject.getSelectedItem().toString();
+            if (namaDipilih == null || namaDipilih.equals("Pilih Project")) {
+                JOptionPane.showMessageDialog(this, 
+                    "Silakan pilih project terlebih dahulu.", 
+                    "Input Error", 
+                    JOptionPane.WARNING_MESSAGE);
+                perMeter.setText("0");
+                return;
+            }
+
+            // Ambil data project
             ProjectModel data = projectMap.get(namaDipilih);
+            if (data == null) {
+                JOptionPane.showMessageDialog(this, 
+                    "Data project tidak ditemukan.", 
+                    "Data Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                perMeter.setText("0");
+                return;
+            }
+
             double typeRumah = data.type;
-            
-            double perMeter = 0;
-            
-            double perMeterPersegi = jumlahTotal/typeRumah;
-            
+
+            // Cek pembagian 0
+            if (typeRumah == 0) {
+                JOptionPane.showMessageDialog(this, 
+                    "Type rumah bernilai 0. Tidak dapat menghitung per meter.", 
+                    "Math Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                perMeter.setText("0");
+                return;
+            }
+
+            // Hitung hasil
+            double perMeterPersegi = jumlahTotal / typeRumah;
+
+            // Set ke field
             this.perMeter.setText(String.valueOf(perMeterPersegi));
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Input tidak valid (harus angka): " + e.getMessage(),
+                "Format Error", 
+                JOptionPane.ERROR_MESSAGE);
+            perMeter.setText("0");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Terjadi kesalahan: " + e.getMessage(),
+                "Unknown Error", 
+                JOptionPane.ERROR_MESSAGE);
+            perMeter.setText("0");
         }
-
-
-
-
-
-
+    }
         
 
     /**
@@ -336,6 +419,7 @@ public class admin_rab extends javax.swing.JFrame {
         jumlahTotal = new javax.swing.JLabel();
         btnSearchMaterial = new javax.swing.JLabel();
         btnTambah = new javax.swing.JLabel();
+        btnEdit = new javax.swing.JLabel();
         btnHapus = new javax.swing.JLabel();
         btnLogout = new javax.swing.JLabel();
         btnCreate = new javax.swing.JLabel();
@@ -344,7 +428,8 @@ public class admin_rab extends javax.swing.JFrame {
         displayAreaMaterial = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         displayAreaCategory = new javax.swing.JTable();
-        jLabel2 = new javax.swing.JLabel();
+        btnSelect1 = new javax.swing.JLabel();
+        btnSelect = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -355,6 +440,13 @@ public class admin_rab extends javax.swing.JFrame {
         getContentPane().add(totalCostField, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 610, 250, 30));
 
         quantityField.setBorder(null);
+        quantityField.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                quantityFieldInputMethodTextChanged(evt);
+            }
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+        });
         quantityField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 quantityFieldActionPerformed(evt);
@@ -371,7 +463,7 @@ public class admin_rab extends javax.swing.JFrame {
         getContentPane().add(unitPriceField, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 540, 250, 30));
 
         comboBoxProject.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        getContentPane().add(comboBoxProject, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 120, 340, -1));
+        getContentPane().add(comboBoxProject, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 125, 330, -1));
 
         btnSupplier.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSupplier.setPreferredSize(new java.awt.Dimension(172, 32));
@@ -461,6 +553,12 @@ public class admin_rab extends javax.swing.JFrame {
 
         jumlahTotal.setText("1200");
         getContentPane().add(jumlahTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(1075, 650, 110, 20));
+
+        btnSearchMaterial.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnSearchMaterialMouseClicked(evt);
+            }
+        });
         getContentPane().add(btnSearchMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 310, 40, 40));
 
         btnTambah.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -469,7 +567,20 @@ public class admin_rab extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnTambah, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 656, 60, 30));
-        getContentPane().add(btnHapus, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 656, 50, 30));
+
+        btnEdit.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnEditMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(452, 656, 50, 30));
+
+        btnHapus.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnHapusMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnHapus, new org.netbeans.lib.awtextra.AbsoluteConstraints(394, 656, 50, 30));
 
         btnLogout.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnLogout.setPreferredSize(new java.awt.Dimension(172, 32));
@@ -479,7 +590,13 @@ public class admin_rab extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 736, -1, -1));
-        getContentPane().add(btnCreate, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 730, 210, 40));
+
+        btnCreate.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnCreateMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnCreate, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 730, 310, 40));
         getContentPane().add(btnCancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 730, 90, 40));
 
         displayAreaMaterial.setModel(new javax.swing.table.DefaultTableModel(
@@ -493,6 +610,11 @@ public class admin_rab extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        displayAreaMaterial.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                displayAreaMaterialMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(displayAreaMaterial);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 180, 530, 300));
@@ -512,18 +634,19 @@ public class admin_rab extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 490, 530, 140));
 
-        jLabel2.setText("jLabel2");
-        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+        btnSelect1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel2MouseClicked(evt);
+                btnSelect1MouseClicked(evt);
             }
         });
-        jLabel2.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                jLabel2KeyPressed(evt);
+        getContentPane().add(btnSelect1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1180, 120, 40, 30));
+
+        btnSelect.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnSelectMouseClicked(evt);
             }
         });
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 120, -1, -1));
+        getContentPane().add(btnSelect, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 120, 80, 30));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/admin_addRAB.png"))); // NOI18N
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -574,18 +697,6 @@ public class admin_rab extends javax.swing.JFrame {
         logout.logout(this, LOGIN);
     }//GEN-LAST:event_btnLogoutMouseClicked
 
-    private void jLabel2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jLabel2KeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jLabel2KeyPressed
-
-    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-        // TODO add your handling code here:
-        tabel();
-        tabelCategory();
-        hitung();
-        hitungPermter();
-    }//GEN-LAST:event_jLabel2MouseClicked
-
     private void quantityFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantityFieldActionPerformed
         // TODO add your handling code here:
         totalCost();
@@ -607,7 +718,7 @@ public class admin_rab extends javax.swing.JFrame {
 
     try (PreparedStatement pst = conn.prepareStatement(sql)) {
         String idRab        = getIdRabFromProject(data.idProject);
-        String idMaterial   = "MTR0000";
+        String idMaterial   = this.idMaterial;
         String category     = categoryField.getText().trim();
         String namaMaterial = namaMaterialField.getText().trim();
         String satuan       = unitField.getText().trim();
@@ -663,6 +774,299 @@ public class admin_rab extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnTambahMouseClicked
 
+    private void btnSearchMaterialMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSearchMaterialMouseClicked
+        // TODO add your handling code here:
+        admin_popup_material mtr = new admin_popup_material();
+        mtr.mtr = this;
+        mtr.setVisible(true);
+        mtr.setResizable(false);
+    }//GEN-LAST:event_btnSearchMaterialMouseClicked
+
+    private void quantityFieldInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_quantityFieldInputMethodTextChanged
+        totalCost();
+    }//GEN-LAST:event_quantityFieldInputMethodTextChanged
+
+    private void displayAreaMaterialMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_displayAreaMaterialMouseClicked
+        // TODO add your handling code here:
+    int row = displayAreaMaterial.getSelectedRow();
+    if (row == -1) return;
+
+    String type         = displayAreaMaterial.getValueAt(row, 0).toString();
+    String category     = displayAreaMaterial.getValueAt(row, 1).toString();
+    String namaMaterial = displayAreaMaterial.getValueAt(row, 2).toString();
+    String unit         = displayAreaMaterial.getValueAt(row, 3).toString();
+    String qty          = displayAreaMaterial.getValueAt(row, 4).toString();
+    String harga        = displayAreaMaterial.getValueAt(row, 5).toString();
+    String total        = displayAreaMaterial.getValueAt(row, 6).toString();
+
+    categoryField.setText(category);
+    namaMaterialField.setText(namaMaterial);
+    unitField.setText(unit);
+    quantityField.setText(qty);
+    unitPriceField.setText(harga);
+    totalCostField.setText(total);
+
+    // INI WAJIB ADA
+    if (type.equalsIgnoreCase("Budget")) {
+        budgetRadioBtn.setSelected(true);
+    } else if (type.equalsIgnoreCase("Additional")) {
+        additionalRadioBtn.setSelected(true);
+    }
+
+    }//GEN-LAST:event_displayAreaMaterialMouseClicked
+
+    private void btnHapusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHapusMouseClicked
+        // TODO add your handling code here:
+            int selectedRow = displayAreaMaterial.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Pilih baris yang akan dihapus.");
+        return;
+    }
+
+    String selectedNamaProject = comboBoxProject.getSelectedItem().toString();
+    if (selectedNamaProject.equals("Pilih Project")) {
+        JOptionPane.showMessageDialog(this, "Silakan pilih project terlebih dahulu.");
+        return;
+    }
+
+    int konfirmasi = JOptionPane.showConfirmDialog(
+        this,
+        "Yakin ingin menghapus data ini?",
+        "Konfirmasi Hapus",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (konfirmasi != JOptionPane.YES_OPTION) return;
+
+    try {
+        ProjectModel data = projectMap.get(selectedNamaProject);
+        String idRab = getIdRabFromProject(data.idProject);
+
+        // ambil value dari tabel
+        String type         = displayAreaMaterial.getValueAt(selectedRow, 0).toString();
+        String category     = displayAreaMaterial.getValueAt(selectedRow, 1).toString();
+        String namaMaterial = displayAreaMaterial.getValueAt(selectedRow, 2).toString();
+        String satuan       = displayAreaMaterial.getValueAt(selectedRow, 3).toString();
+        int jumlah          = Integer.parseInt(displayAreaMaterial.getValueAt(selectedRow, 4).toString());
+        double hargaSatuan  = Double.parseDouble(displayAreaMaterial.getValueAt(selectedRow, 5).toString());
+        double hargaTotal   = Double.parseDouble(displayAreaMaterial.getValueAt(selectedRow, 6).toString());
+
+        String sql = "DELETE FROM isirab WHERE id_rab=? AND type=? AND category=? AND nama_material=? AND satuan=? AND jumlah=? AND harga_satuan=? AND harga_total=?";
+
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setString(1, idRab);
+        pst.setString(2, type);
+        pst.setString(3, category);
+        pst.setString(4, namaMaterial);
+        pst.setString(5, satuan);
+        pst.setInt(6, jumlah);
+        pst.setDouble(7, hargaSatuan);
+        pst.setDouble(8, hargaTotal);
+
+        int deleted = pst.executeUpdate();
+
+        if (deleted > 0) {
+            JOptionPane.showMessageDialog(this, "Data berhasil dihapus.");
+
+            // refresh semua tampilan
+            tabel();
+            tabelCategory();
+            hitung();
+            hitungPermter();
+            clearForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Data tidak ditemukan atau gagal dihapus.");
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    }
+    }//GEN-LAST:event_btnHapusMouseClicked
+
+    private void btnSelectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSelectMouseClicked
+        // TODO add your handling code here:
+        tabel();
+        tabelCategory();
+        hitung();
+        hitungPermter();
+        String selectedNamaProject = comboBoxProject.getSelectedItem().toString();
+        ProjectModel data = projectMap.get(selectedNamaProject);
+        String id = getIdRabFromProject(data.idProject);
+        System.out.println(id);
+    }//GEN-LAST:event_btnSelectMouseClicked
+
+    private void btnSelect1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSelect1MouseClicked
+        // TODO add your handling code here:
+        clearForm();
+    }//GEN-LAST:event_btnSelect1MouseClicked
+
+    private void btnEditMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEditMouseClicked
+    int selectedRow = displayAreaMaterial.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih baris yang akan diubah.");
+            return;
+        }
+
+        String selectedNamaProject = comboBoxProject.getSelectedItem().toString();
+        if (selectedNamaProject.equals("Pilih Project")) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih project terlebih dahulu.");
+            return;
+        }
+
+        int konfirmasi = JOptionPane.showConfirmDialog(
+            this,
+            "Yakin ingin mengubah data ini?",
+            "Konfirmasi Ubah",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (konfirmasi != JOptionPane.YES_OPTION) return;
+
+        try {
+            // 1. Ambil id_rab berdasarkan project
+            ProjectModel data = projectMap.get(selectedNamaProject);
+            String idRab = getIdRabFromProject(data.idProject);
+
+            // 2. DATA LAMA dari tabel (untuk kondisi WHERE)
+            String oldType         = displayAreaMaterial.getValueAt(selectedRow, 0).toString();
+            String oldCategory     = displayAreaMaterial.getValueAt(selectedRow, 1).toString();
+            String oldNamaMaterial = displayAreaMaterial.getValueAt(selectedRow, 2).toString();
+            String oldSatuan       = displayAreaMaterial.getValueAt(selectedRow, 3).toString();
+            int    oldJumlah       = Integer.parseInt(displayAreaMaterial.getValueAt(selectedRow, 4).toString());
+            double oldHargaSatuan  = Double.parseDouble(displayAreaMaterial.getValueAt(selectedRow, 5).toString());
+            double oldHargaTotal   = Double.parseDouble(displayAreaMaterial.getValueAt(selectedRow, 6).toString());
+
+            // 3. DATA BARU dari form (yang sudah diedit user)
+            String newCategory     = categoryField.getText().trim();
+            String newNamaMaterial = namaMaterialField.getText().trim();
+            String newSatuan       = unitField.getText().trim();
+            int    newJumlah       = Integer.parseInt(quantityField.getText().trim());
+            double newHargaSatuan  = Double.parseDouble(unitPriceField.getText().trim());
+            double newHargaTotal   = Double.parseDouble(totalCostField.getText().trim());
+
+            // ambil type baru dari radio button
+            ButtonModel selected = buttonGroup1.getSelection();
+            String newType;
+            if (selected == null) {
+                newType = "Budget"; // default
+            } else {
+                newType = selected.getActionCommand(); // "Budget" / "Additional"
+            }
+
+            String sql =
+                "UPDATE isirab SET " +
+                "type=?, category=?, nama_material=?, satuan=?, jumlah=?, harga_satuan=?, harga_total=? " +
+                "WHERE id_rab=? AND type=? AND category=? AND nama_material=? AND satuan=? AND jumlah=? AND harga_satuan=? AND harga_total=?";
+
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            // 4. SET PARAMETER BARU (SET ...)
+            pst.setString(1,  newType);
+            pst.setString(2,  newCategory);
+            pst.setString(3,  newNamaMaterial);
+            pst.setString(4,  newSatuan);
+            pst.setInt(5,     newJumlah);
+            pst.setDouble(6,  newHargaSatuan);
+            pst.setDouble(7,  newHargaTotal);
+
+            // 5. SET PARAMETER LAMA (WHERE ...)
+            pst.setString(8,  idRab);
+            pst.setString(9,  oldType);
+            pst.setString(10, oldCategory);
+            pst.setString(11, oldNamaMaterial);
+            pst.setString(12, oldSatuan);
+            pst.setInt(13,    oldJumlah);
+            pst.setDouble(14, oldHargaSatuan);
+            pst.setDouble(15, oldHargaTotal);
+
+            int updated = pst.executeUpdate();
+
+            if (updated > 0) {
+                JOptionPane.showMessageDialog(this, "Data berhasil diubah.");
+
+                // refresh tampilan + hitungan
+                tabel();
+                tabelCategory();
+                hitung();
+                hitungPermter();
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Data tidak ditemukan atau gagal diubah.");
+            }
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                "Quantity / harga tidak valid (bukan angka).\n" + e.getMessage(),
+                "Input Error",
+                JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnEditMouseClicked
+
+    private void btnCreateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnCreateMouseClicked
+        // TODO add your handling code here:
+        String query = "UPDATE rab SET nama_project = ?, total = ?, permeter = ? WHERE id_rab = ?";
+
+        try (Connection connection = koneksi.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            // pastikan project dipilih
+            String selectedNamaProject = comboBoxProject.getSelectedItem().toString();
+            if (selectedNamaProject == null || selectedNamaProject.equals("Pilih Project")) {
+                JOptionPane.showMessageDialog(this, "Silakan pilih project terlebih dahulu.");
+                return;
+            }
+
+            ProjectModel data = projectMap.get(selectedNamaProject);
+            if (data == null) {
+                JOptionPane.showMessageDialog(this, "Data project tidak ditemukan.");
+                return;
+            }
+
+            String namaProject = data.namaProject;
+            String idRab = getIdRabFromProject(data.idProject);
+
+            // parse angka dengan aman
+            double total    = 0;
+            double permeter = 0;
+
+            try {
+                total    = Double.parseDouble(jumlahTotal.getText().trim());
+                permeter = Double.parseDouble(perMeter.getText().trim());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this,
+                    "Total / permeter harus berupa angka.",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // set parameter
+            preparedStatement.setString(1, namaProject);
+            preparedStatement.setDouble(2, total);
+            preparedStatement.setDouble(3, permeter);
+            preparedStatement.setString(4, idRab);  // WHERE id_project = ?
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Data project berhasil diubah.");
+                tabel();
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Gagal mengubah data.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                "Gagal mengubah data: " + e.getMessage(),
+                "Database Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCreateMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -703,12 +1107,15 @@ public class admin_rab extends javax.swing.JFrame {
     private javax.swing.JRadioButton additionalRadioBtn;
     private javax.swing.JLabel btnCancel;
     private javax.swing.JLabel btnCreate;
+    private javax.swing.JLabel btnEdit;
     private javax.swing.JLabel btnHapus;
     private javax.swing.JLabel btnLogout;
     private javax.swing.JLabel btnMaterial;
     private javax.swing.JLabel btnProject;
     private javax.swing.JLabel btnReport;
     private javax.swing.JLabel btnSearchMaterial;
+    private javax.swing.JLabel btnSelect;
+    private javax.swing.JLabel btnSelect1;
     private javax.swing.JLabel btnSupplier;
     private javax.swing.JLabel btnTambah;
     private javax.swing.JLabel btnUser;
@@ -719,7 +1126,6 @@ public class admin_rab extends javax.swing.JFrame {
     private javax.swing.JTable displayAreaCategory;
     private javax.swing.JTable displayAreaMaterial;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel jumlahTotal;

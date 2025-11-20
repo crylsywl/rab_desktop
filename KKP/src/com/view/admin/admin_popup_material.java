@@ -19,21 +19,23 @@ public class admin_popup_material extends javax.swing.JFrame {
         private Connection conn = new koneksi().getConnection(); 
     private DefaultTableModel tbl;
     private MaterialSelectionListener selectionListener;
+    public admin_rab mtr = null;
+
+    admin_popup_material() {
+        initComponents();
+        datatable();
+        setLocationRelativeTo(null); // Center the window
+         }
     
     public interface MaterialSelectionListener {
-        void onMaterialSelected(String idMaterial, String namaMaterial, String satuan, double price);
+        void onMaterialSelected(String idMaterial, String namaMaterial, String satuan, String price);
     }
 
     /**
      * Creates new form admin_popup_material
      * @param listener
      */
-    public admin_popup_material(MaterialSelectionListener listener) {
-        this.selectionListener = listener;
-        initComponents();
-        datatable();
-        setLocationRelativeTo(null); // Center the window
-    }
+   
     protected void datatable(){
         tbl = new DefaultTableModel();
         tbl.addColumn("ID Material");
@@ -113,20 +115,20 @@ public class admin_popup_material extends javax.swing.JFrame {
     /**
      * Method ketika table di-click
      */
-    private void displayAreaMouseClicked(java.awt.event.MouseEvent evt) {
-        int row = displayArea.getSelectedRow();
-        if (row >= 0) {
-            String idMaterial = displayArea.getValueAt(row, 0).toString();
-            String namaMaterial = displayArea.getValueAt(row, 2).toString();
-            String satuan = displayArea.getValueAt(row, 4).toString();
-            double price = Double.parseDouble(displayArea.getValueAt(row, 6).toString());
-            
-            if (selectionListener != null) {
-                selectionListener.onMaterialSelected(idMaterial, namaMaterial, satuan, price);
-            }
-            this.dispose();
-        }
-    }
+//    private void displayAreaMouseClicked(java.awt.event.MouseEvent evt) {
+//        int row = displayArea.getSelectedRow();
+//        if (row >= 0) {
+//            mtr.idMaterial = displayArea.getValueAt(row, 0).toString();
+//            mtr.namaMaterial = displayArea.getValueAt(row, 2).toString();
+//            mtr.satuan = displayArea.getValueAt(row, 4).toString();
+//            mtr.price = displayArea.getValueAt(row, 6).toString();
+//            
+//            if (selectionListener != null) {
+//                selectionListener.onMaterialSelected(mtr.idMaterial, mtr.namaMaterial, mtr.satuan, mtr.price);
+//            }
+//            this.dispose();
+//        }
+//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -138,7 +140,7 @@ public class admin_popup_material extends javax.swing.JFrame {
 
         SearchField = new javax.swing.JTextField();
         btnSearch = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
         displayArea = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
 
@@ -146,7 +148,7 @@ public class admin_popup_material extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         SearchField.setBorder(null);
-        getContentPane().add(SearchField, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 110, 230, 40));
+        getContentPane().add(SearchField, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 120, 230, 20));
 
         btnSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSearch.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -167,9 +169,14 @@ public class admin_popup_material extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(displayArea);
+        displayArea.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                displayAreaMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(displayArea);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, 650, 210));
+        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 170, 660, 260));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/Popup_Material.png"))); // NOI18N
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -180,6 +187,19 @@ public class admin_popup_material extends javax.swing.JFrame {
     private void btnSearchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSearchMouseClicked
         searchData();
     }//GEN-LAST:event_btnSearchMouseClicked
+
+    private void displayAreaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_displayAreaMouseClicked
+        // TODO add your handling code here:
+        int row = displayArea.getSelectedRow();
+   
+            mtr.idMaterial = displayArea.getValueAt(row, 0).toString();
+            mtr.namaMaterial = displayArea.getValueAt(row, 2).toString();
+            mtr.satuan = displayArea.getValueAt(row, 4).toString();
+            mtr.price = displayArea.getValueAt(row, 6).toString();
+            mtr.itemTerpilihMaterial();
+            this.dispose();
+
+    }//GEN-LAST:event_displayAreaMouseClicked
 
     /**
      * @param args the command line arguments
@@ -212,12 +232,7 @@ public class admin_popup_material extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new admin_popup_material(new admin_popup_material.MaterialSelectionListener() {
-                    @Override
-                    public void onMaterialSelected(String idMaterial, String namaMaterial, String satuan, double price) {
-                        System.out.println("Material terpilih: " + namaMaterial + " - Harga: " + price);
-                    }
-                }).setVisible(true);
+                new admin_popup_material().setVisible(true);
             }
         });
     }
@@ -227,6 +242,6 @@ public class admin_popup_material extends javax.swing.JFrame {
     private javax.swing.JLabel btnSearch;
     private javax.swing.JTable displayArea;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 }

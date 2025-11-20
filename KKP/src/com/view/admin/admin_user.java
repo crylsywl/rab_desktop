@@ -144,6 +144,7 @@ public class admin_user extends javax.swing.JFrame {
         userNameField.setText("");
         passwordField.setText("");
         confirmPasswordField.setText("");
+        searchField.setText("");
         }
      
 
@@ -176,6 +177,7 @@ public class admin_user extends javax.swing.JFrame {
         btnReport = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         displayArea = new javax.swing.JTable();
+        btnRefresh = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -328,6 +330,13 @@ public class admin_user extends javax.swing.JFrame {
         jScrollPane1.setViewportView(displayArea);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 210, 570, 530));
+
+        btnRefresh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnRefreshMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 150, 30, 40));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/admin_user.png"))); // NOI18N
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -641,6 +650,13 @@ public class admin_user extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_displayAreaMouseClicked
 
+    private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
+        // TODO add your handling code here:
+        clear();
+        autonumber();
+        tabel();
+    }//GEN-LAST:event_btnRefreshMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -682,6 +698,7 @@ public class admin_user extends javax.swing.JFrame {
     private javax.swing.JLabel btnMaterial;
     private javax.swing.JLabel btnProject;
     private javax.swing.JLabel btnRAB;
+    private javax.swing.JLabel btnRefresh;
     private javax.swing.JLabel btnReport;
     private javax.swing.JLabel btnSearch;
     private javax.swing.JLabel btnSimpan;

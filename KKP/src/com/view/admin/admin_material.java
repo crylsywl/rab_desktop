@@ -216,6 +216,7 @@ public class admin_material extends javax.swing.JFrame {
         username = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        btnRefresh = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -387,6 +388,13 @@ public class admin_material extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTable1);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 220, 590, 530));
+
+        btnRefresh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnRefreshMouseClicked(evt);
+            }
+        });
+        getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 150, 30, 40));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/admin_Material.png"))); // NOI18N
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -628,6 +636,13 @@ public class admin_material extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnUserMouseClicked
 
+    private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
+        // TODO add your handling code here:
+        clearForm();
+        loadTable();
+        autonumber();
+    }//GEN-LAST:event_btnRefreshMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -671,6 +686,7 @@ public class admin_material extends javax.swing.JFrame {
     private javax.swing.JLabel btnMaterial;
     private javax.swing.JLabel btnProject;
     private javax.swing.JLabel btnRab;
+    private javax.swing.JLabel btnRefresh;
     private javax.swing.JLabel btnReport;
     private javax.swing.JLabel btnSearch;
     private javax.swing.JLabel btnSimpan;
