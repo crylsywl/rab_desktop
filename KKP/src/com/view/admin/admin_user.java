@@ -159,7 +159,7 @@ public class admin_user extends javax.swing.JFrame {
 
         btnLogout = new javax.swing.JLabel();
         btnEdit = new javax.swing.JLabel();
-        btnSimpan2 = new javax.swing.JLabel();
+        btnHapus = new javax.swing.JLabel();
         btnSearch = new javax.swing.JLabel();
         searchField = new javax.swing.JTextField();
         username = new javax.swing.JLabel();
@@ -167,7 +167,6 @@ public class admin_user extends javax.swing.JFrame {
         btnSimpan = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
         idUserField = new javax.swing.JTextField();
-        idUserField3 = new javax.swing.JTextField();
         confirmPasswordField = new javax.swing.JPasswordField();
         passwordField = new javax.swing.JPasswordField();
         btnSupplier = new javax.swing.JLabel();
@@ -200,13 +199,13 @@ public class admin_user extends javax.swing.JFrame {
         });
         getContentPane().add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(376, 502, 68, 33));
 
-        btnSimpan2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnSimpan2.addMouseListener(new java.awt.event.MouseAdapter() {
+        btnHapus.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnHapus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnSimpan2MouseClicked(evt);
+                btnHapusMouseClicked(evt);
             }
         });
-        getContentPane().add(btnSimpan2, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 502, 84, 33));
+        getContentPane().add(btnHapus, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 502, 84, 33));
 
         btnSearch.setToolTipText("");
         btnSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -250,10 +249,6 @@ public class admin_user extends javax.swing.JFrame {
             }
         });
         getContentPane().add(idUserField, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 160, 250, 30));
-
-        idUserField3.setText("jTextField1");
-        idUserField3.setBorder(null);
-        getContentPane().add(idUserField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 160, 250, 30));
 
         confirmPasswordField.setBorder(null);
         getContentPane().add(confirmPasswordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 456, 250, 30));
@@ -554,7 +549,7 @@ public class admin_user extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEditMouseClicked
 
-    private void btnSimpan2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSimpan2MouseClicked
+    private void btnHapusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHapusMouseClicked
         // TODO add your handling code here:
         String idText = idUserField.getText().trim();
         if (idText.isEmpty()) {
@@ -594,7 +589,7 @@ public class admin_user extends javax.swing.JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnSimpan2MouseClicked
+    }//GEN-LAST:event_btnHapusMouseClicked
 
     private void btnSearchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSearchMouseClicked
         // TODO add your handling code here:
@@ -694,6 +689,7 @@ public class admin_user extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel btnEdit;
+    private javax.swing.JLabel btnHapus;
     private javax.swing.JLabel btnLogout;
     private javax.swing.JLabel btnMaterial;
     private javax.swing.JLabel btnProject;
@@ -702,12 +698,10 @@ public class admin_user extends javax.swing.JFrame {
     private javax.swing.JLabel btnReport;
     private javax.swing.JLabel btnSearch;
     private javax.swing.JLabel btnSimpan;
-    private javax.swing.JLabel btnSimpan2;
     private javax.swing.JLabel btnSupplier;
     private javax.swing.JPasswordField confirmPasswordField;
     private javax.swing.JTable displayArea;
     private javax.swing.JTextField idUserField;
-    private javax.swing.JTextField idUserField3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField nameField;
