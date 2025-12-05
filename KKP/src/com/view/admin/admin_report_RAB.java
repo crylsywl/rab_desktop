@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -109,26 +111,28 @@ public class admin_report_RAB extends javax.swing.JFrame {
         
         printField.setText(idRab);
         
-        // Ambil hanya user IDs
-        java.util.List<String> userIds = getUserIds();
+        // Ambil data user (id dan nama)
+        Map<String, String> userMap = getUserMap(); // Key: nama, Value: id_user
         
-        if (userIds.isEmpty()) {
+        if (userMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Tidak ada user yang ditemukan!");
             return;
         }
         
-        // Buat JComboBox sederhana
-        JComboBox<String> userComboBox = new JComboBox<>(userIds.toArray(new String[0]));
+        // Buat array nama untuk ditampilkan di combo box
+        String[] userNames = userMap.keySet().toArray(new String[0]);
+        JComboBox<String> userComboBox = new JComboBox<>(userNames);
         
         int result = JOptionPane.showConfirmDialog(
             null, 
             userComboBox, 
-            "Pilih User ID untuk Print", 
+            "Pilih User untuk Print", 
             JOptionPane.OK_CANCEL_OPTION
         );
         
         if (result == JOptionPane.OK_OPTION) {
-            String selectedUserId = (String) userComboBox.getSelectedItem();
+            String selectedUserName = (String) userComboBox.getSelectedItem();
+            String selectedUserId = userMap.get(selectedUserName);
             printRABReport(idRab, selectedUserId, namaProject);
         }
         
@@ -137,17 +141,19 @@ public class admin_report_RAB extends javax.swing.JFrame {
     }
 }
 
-private java.util.List<String> getUserIds() {
-    java.util.List<String> userIds = new java.util.ArrayList<>();
+private Map<String, String> getUserMap() {
+    Map<String, String> userMap = new LinkedHashMap<>(); // LinkedHashMap untuk menjaga urutan
     
     try {
         Connection conn = koneksi.getConnection();
-        String sql = "SELECT id_user FROM user ORDER BY id_user";
+        String sql = "SELECT id_user, nama FROM user ORDER BY nama";
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         
         while (rs.next()) {
-            userIds.add(rs.getString("id_user"));
+            String id = rs.getString("id_user");
+            String nama = rs.getString("nama");
+            userMap.put(nama, id); // Key: nama, Value: id_user
         }
         
         rs.close();
@@ -155,10 +161,10 @@ private java.util.List<String> getUserIds() {
         conn.close();
         
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "Error mengambil user IDs: " + e.getMessage());
+        JOptionPane.showMessageDialog(null, "Error mengambil data user: " + e.getMessage());
     }
     
-    return userIds;
+    return userMap;
 }
     
     /**
@@ -172,8 +178,7 @@ private java.util.List<String> getUserIds() {
         new RAB_Report().printRABById(idRab, idUser);
             JOptionPane.showMessageDialog(null, 
                 "Print RAB: " + idRab + "\n" +
-                "Project: " + namaProject + "\n" +
-                "Fitur print akan diimplementasikan menggunakan JasperReports");
+                "Project: " + namaProject);
             
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error printing report: " + e.getMessage());

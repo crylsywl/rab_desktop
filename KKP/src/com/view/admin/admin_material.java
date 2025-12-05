@@ -32,12 +32,17 @@ public class admin_material extends javax.swing.JFrame {
      */
     
     public admin_material(){
-        initComponents();
-        setLocationRelativeTo(null);
-        loadTable();   // tampilkan data saat form dibuka
-        clearForm();
-        nama();
-        autonumber();
+    initComponents();
+    setLocationRelativeTo(null);
+    
+    // Set combo box agar tidak bisa diinput manual
+    jComboBox1.setEditable(false);
+    
+    loadSupplierComboBox();  // Load data supplier
+    loadTable();   // tampilkan data saat form dibuka
+    clearForm();
+    nama();
+    autonumber();
     }
      protected void autonumber(){ 
     try { 
@@ -88,12 +93,45 @@ public class admin_material extends javax.swing.JFrame {
         }
     }
     
+    private void loadSupplierComboBox() {
+    // Kosongkan combo box terlebih dahulu
+    jComboBox1.removeAllItems();
+    
+    // Tambahkan item kosong sebagai default
+    jComboBox1.addItem("-- Pilih Supplier --");
+    
+    if (conn == null) {
+        JOptionPane.showMessageDialog(this, "Tidak ada koneksi ke database");
+        return;
+    }
+    
+    String sql = "SELECT id_supplier, nama_supplier FROM supplier ORDER BY nama_supplier";
+    
+    try (Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+        
+        while (rs.next()) {
+            String idSupplier = rs.getString("id_supplier");
+            String namaSupplier = rs.getString("nama_supplier");
+            
+            // Tambahkan ke combo box (simpan ID sebagai value)
+            jComboBox1.addItem(namaSupplier + " | " + idSupplier);
+        }
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this,
+                "Gagal memuat data supplier: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    
     
   
     
      private void clearForm() {
         idMaterialField.setText("");
-        supplierNameField.setText("");
+//        supplierNameField.setText("");
+        jComboBox1.setSelectedIndex(0);
         materialNameField.setText("");
         specificationField.setText("");
         unitField.setText("");
@@ -202,7 +240,6 @@ public class admin_material extends javax.swing.JFrame {
         btnReport = new javax.swing.JLabel();
         btnLogout = new javax.swing.JLabel();
         idMaterialField = new javax.swing.JTextField();
-        supplierNameField = new javax.swing.JTextField();
         materialNameField = new javax.swing.JTextField();
         specificationField = new javax.swing.JTextField();
         unitField = new javax.swing.JTextField();
@@ -217,6 +254,7 @@ public class admin_material extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         btnRefresh = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -249,6 +287,7 @@ public class admin_material extends javax.swing.JFrame {
         btnMaterial.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         getContentPane().add(btnMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 352, 170, 30));
 
+        btnRab.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnRab.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnRabMouseClicked(evt);
@@ -256,6 +295,7 @@ public class admin_material extends javax.swing.JFrame {
         });
         getContentPane().add(btnRab, new org.netbeans.lib.awtextra.AbsoluteConstraints(23, 400, 170, 30));
 
+        btnReport.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnReport.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnReportMouseClicked(evt);
@@ -277,14 +317,6 @@ public class admin_material extends javax.swing.JFrame {
             }
         });
         getContentPane().add(idMaterialField, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 160, 270, 30));
-
-        supplierNameField.setBorder(null);
-        supplierNameField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                supplierNameFieldActionPerformed(evt);
-            }
-        });
-        getContentPane().add(supplierNameField, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 233, 270, 30));
 
         materialNameField.setBorder(null);
         materialNameField.addActionListener(new java.awt.event.ActionListener() {
@@ -396,6 +428,14 @@ public class admin_material extends javax.swing.JFrame {
         });
         getContentPane().add(btnRefresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 150, 30, 40));
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 270, 40));
+
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/admin/admin_Material.png"))); // NOI18N
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
@@ -405,10 +445,6 @@ public class admin_material extends javax.swing.JFrame {
     private void idMaterialFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_idMaterialFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_idMaterialFieldActionPerformed
-
-    private void supplierNameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_supplierNameFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_supplierNameFieldActionPerformed
 
     private void materialNameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_materialNameFieldActionPerformed
         // TODO add your handling code here:
@@ -431,103 +467,125 @@ public class admin_material extends javax.swing.JFrame {
     }//GEN-LAST:event_priceFieldActionPerformed
 
     private void btnSimpanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSimpanMouseClicked
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Tidak ada koneksi ke database");
-            return;
-        }
+    if (conn == null) {
+        JOptionPane.showMessageDialog(this, "Tidak ada koneksi ke database");
+        return;
+    }
 
-        String id = idMaterialField.getText().trim();
-        String supplier = supplierNameField.getText().trim();
-        String material = materialNameField.getText().trim();
-        String spesifikasi = specificationField.getText().trim();
-        String satuan = unitField.getText().trim();
-        String stok = stockField.getText().trim();
-        String price = priceField.getText().trim();
+    String id = idMaterialField.getText().trim();
+    String selectedSupplier = (String) jComboBox1.getSelectedItem();  // Ambil dari combo box
+    String material = materialNameField.getText().trim();
+    String spesifikasi = specificationField.getText().trim();
+    String satuan = unitField.getText().trim();
+    String stok = stockField.getText().trim();
+    String price = priceField.getText().trim();
 
-        if (id.isEmpty() || supplier.isEmpty() || material.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "ID Material, Nama Supplier, dan Nama Material wajib diisi",
-                    "Warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+    // Validasi combo box
+    if (selectedSupplier == null || selectedSupplier.equals("-- Pilih Supplier --")) {
+        JOptionPane.showMessageDialog(this,
+                "Pilih supplier terlebih dahulu",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        String sql = "INSERT INTO material "
-                + "(id_material, nama_supplier, nama_material, spesifikasi, satuan, stok, price) "
-                + "VALUES (?,?,?,?,?,?,?)";
+    // Ekstrak nama supplier dari combo box (format: "Nama Supplier | ID")
+    String supplierName = selectedSupplier.split("\\|")[0].trim();
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
-            ps.setString(2, supplier);
-            ps.setString(3, material);
-            ps.setString(4, spesifikasi);
-            ps.setString(5, satuan);
-            ps.setInt(6, Integer.parseInt(stok));
-            ps.setBigDecimal(7, new java.math.BigDecimal(price));
+    if (id.isEmpty() || material.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "ID Material dan Nama Material wajib diisi",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Data berhasil disimpan");
-            clearForm();
-            loadTable();
-            autonumber();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Stok harus angka dan Price harus angka (desimal)",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Gagal menyimpan data: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    String sql = "INSERT INTO material "
+            + "(id_material, nama_supplier, nama_material, spesifikasi, satuan, stok, price) "
+            + "VALUES (?,?,?,?,?,?,?)";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, id);
+        ps.setString(2, supplierName);
+        ps.setString(3, material);
+        ps.setString(4, spesifikasi);
+        ps.setString(5, satuan);
+        ps.setInt(6, Integer.parseInt(stok));
+        ps.setBigDecimal(7, new java.math.BigDecimal(price));
+
+        ps.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Data berhasil disimpan");
+        clearForm();
+        loadTable();
+        autonumber();
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this,
+                "Stok harus angka dan Price harus angka (desimal)",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this,
+                "Gagal menyimpan data: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnSimpanMouseClicked
 
     private void btnEditMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEditMouseClicked
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Tidak ada koneksi ke database");
-            return;
-        }
+     if (conn == null) {
+        JOptionPane.showMessageDialog(this, "Tidak ada koneksi ke database");
+        return;
+    }
 
-        String id = idMaterialField.getText().trim();
-        String supplier = supplierNameField.getText().trim();
-        String material = materialNameField.getText().trim();
-        String spesifikasi = specificationField.getText().trim();
-        String satuan = unitField.getText().trim();
-        String stok = stockField.getText().trim();
-        String price = priceField.getText().trim();
+    String id = idMaterialField.getText().trim();
+    String selectedSupplier = (String) jComboBox1.getSelectedItem();  // Ambil dari combo box
+    String material = materialNameField.getText().trim();
+    String spesifikasi = specificationField.getText().trim();
+    String satuan = unitField.getText().trim();
+    String stok = stockField.getText().trim();
+    String price = priceField.getText().trim();
 
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Pilih data di tabel atau isi ID Material untuk di-update",
-                    "Warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "Pilih data di tabel atau isi ID Material untuk di-update",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        String sql = "UPDATE material SET "
-                + "nama_supplier=?, nama_material=?, spesifikasi=?, satuan=?, stok=?, price=? "
-                + "WHERE id_material=?";
+    // Validasi combo box
+    if (selectedSupplier == null || selectedSupplier.equals("-- Pilih Supplier --")) {
+        JOptionPane.showMessageDialog(this,
+                "Pilih supplier terlebih dahulu",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, supplier);
-            ps.setString(2, material);
-            ps.setString(3, spesifikasi);
-            ps.setString(4, satuan);
-            ps.setInt(5, Integer.parseInt(stok));
-            ps.setBigDecimal(6, new java.math.BigDecimal(price));
-            ps.setString(7, id);
+    // Ekstrak nama supplier dari combo box
+    String supplierName = selectedSupplier.split("\\|")[0].trim();
 
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Data berhasil diupdate");
-            clearForm();
-            loadTable();
-            autonumber();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Stok harus angka dan Price harus angka (desimal)",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Gagal mengupdate data: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    String sql = "UPDATE material SET "
+            + "nama_supplier=?, nama_material=?, spesifikasi=?, satuan=?, stok=?, price=? "
+            + "WHERE id_material=?";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, supplierName);
+        ps.setString(2, material);
+        ps.setString(3, spesifikasi);
+        ps.setString(4, satuan);
+        ps.setInt(5, Integer.parseInt(stok));
+        ps.setBigDecimal(6, new java.math.BigDecimal(price));
+        ps.setString(7, id);
+
+        ps.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Data berhasil diupdate");
+        clearForm();
+        loadTable();
+        autonumber();
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this,
+                "Stok harus angka dan Price harus angka (desimal)",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this,
+                "Gagal mengupdate data: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnEditMouseClicked
 
     private void btnHapusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHapusMouseClicked
@@ -590,16 +648,28 @@ public class admin_material extends javax.swing.JFrame {
     }//GEN-LAST:event_searchFieldActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        int row = jTable1.getSelectedRow();
-        if (row == -1) return;
+    int row = jTable1.getSelectedRow();
+    if (row == -1) return;
 
-        idMaterialField.setText(tabmode.getValueAt(row, 0).toString());
-        supplierNameField.setText(tabmode.getValueAt(row, 1).toString());
-        materialNameField.setText(tabmode.getValueAt(row, 2).toString());
-        specificationField.setText(tabmode.getValueAt(row, 3).toString());
-        unitField.setText(tabmode.getValueAt(row, 4).toString());
-        stockField.setText(tabmode.getValueAt(row, 5).toString());
-        priceField.setText(tabmode.getValueAt(row, 6).toString());
+    idMaterialField.setText(tabmode.getValueAt(row, 0).toString());
+    
+    // Ambil nama supplier dari tabel
+    String supplierFromTable = tabmode.getValueAt(row, 1).toString();
+    
+    // Cari item yang sesuai di combo box
+    for (int i = 0; i < jComboBox1.getItemCount(); i++) {
+        String item = jComboBox1.getItemAt(i);
+        if (item.contains(supplierFromTable)) {
+            jComboBox1.setSelectedIndex(i);
+            break;
+        }
+    }
+    
+    materialNameField.setText(tabmode.getValueAt(row, 2).toString());
+    specificationField.setText(tabmode.getValueAt(row, 3).toString());
+    unitField.setText(tabmode.getValueAt(row, 4).toString());
+    stockField.setText(tabmode.getValueAt(row, 5).toString());
+    priceField.setText(tabmode.getValueAt(row, 6).toString());
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void usernameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usernameMouseClicked
@@ -642,6 +712,10 @@ public class admin_material extends javax.swing.JFrame {
         loadTable();
         autonumber();
     }//GEN-LAST:event_btnRefreshMouseClicked
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+
+    }//GEN-LAST:event_jComboBox1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -693,6 +767,7 @@ public class admin_material extends javax.swing.JFrame {
     private javax.swing.JLabel btnSupplier;
     private javax.swing.JLabel btnUser;
     private javax.swing.JTextField idMaterialField;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
@@ -701,7 +776,6 @@ public class admin_material extends javax.swing.JFrame {
     private javax.swing.JTextField searchField;
     private javax.swing.JTextField specificationField;
     private javax.swing.JTextField stockField;
-    private javax.swing.JTextField supplierNameField;
     private javax.swing.JTextField unitField;
     private javax.swing.JLabel username;
     // End of variables declaration//GEN-END:variables

@@ -441,10 +441,10 @@ public class admin_rab extends javax.swing.JFrame {
 
         quantityField.setBorder(null);
         quantityField.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 quantityFieldInputMethodTextChanged(evt);
-            }
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         quantityField.addActionListener(new java.awt.event.ActionListener() {
@@ -554,6 +554,7 @@ public class admin_rab extends javax.swing.JFrame {
         jumlahTotal.setText("1200");
         getContentPane().add(jumlahTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(1075, 650, 110, 20));
 
+        btnSearchMaterial.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSearchMaterial.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnSearchMaterialMouseClicked(evt);
@@ -561,6 +562,7 @@ public class admin_rab extends javax.swing.JFrame {
         });
         getContentPane().add(btnSearchMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 310, 40, 40));
 
+        btnTambah.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnTambah.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnTambahMouseClicked(evt);
@@ -568,6 +570,7 @@ public class admin_rab extends javax.swing.JFrame {
         });
         getContentPane().add(btnTambah, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 656, 60, 30));
 
+        btnEdit.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnEdit.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnEditMouseClicked(evt);
@@ -575,6 +578,7 @@ public class admin_rab extends javax.swing.JFrame {
         });
         getContentPane().add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(452, 656, 50, 30));
 
+        btnHapus.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnHapus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnHapusMouseClicked(evt);
@@ -591,6 +595,7 @@ public class admin_rab extends javax.swing.JFrame {
         });
         getContentPane().add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 736, -1, -1));
 
+        btnCreate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnCreate.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnCreateMouseClicked(evt);
@@ -634,6 +639,7 @@ public class admin_rab extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 490, 530, 140));
 
+        btnSelect1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSelect1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnSelect1MouseClicked(evt);
@@ -641,6 +647,7 @@ public class admin_rab extends javax.swing.JFrame {
         });
         getContentPane().add(btnSelect1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1180, 120, 40, 30));
 
+        btnSelect.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSelect.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btnSelectMouseClicked(evt);
