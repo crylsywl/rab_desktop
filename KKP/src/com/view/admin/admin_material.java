@@ -450,10 +450,6 @@ public class admin_material extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_materialNameFieldActionPerformed
 
-    private void specificationFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specificationFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_specificationFieldActionPerformed
-
     private void unitFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unitFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_unitFieldActionPerformed
@@ -716,6 +712,10 @@ public class admin_material extends javax.swing.JFrame {
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
 
     }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void specificationFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specificationFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_specificationFieldActionPerformed
 
     /**
      * @param args the command line arguments
